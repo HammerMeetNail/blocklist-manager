@@ -1,5 +1,5 @@
 # --- Build Stage ----
-FROM python:3.6.9-alpine as Release
+FROM python:3.6.9-alpine as Build
 
 WORKDIR /app
 COPY requirements.txt /app/
@@ -11,11 +11,8 @@ COPY web /app/web
 ENTRYPOINT [ "gunicorn", "-c", "gunicorn.py", "wsgi:app" ]
 
 # --- Test Stage ----
-FROM python:3.6.9-alpine as Test
+FROM Build as Test
 
-
-WORKDIR /app
-COPY --from=Release / /
 COPY test /app/test
 RUN pip install -r test/requirements.txt
 
@@ -24,3 +21,6 @@ ENV AWS_SECRET_ACCESS_KEY mock
 ENV AWS_DEFAULT_REGION mock
 
 RUN pytest test/unit.py --doctest-modules -v --cov web --cov-report term-missing
+
+# --- Release Stage ---
+FROM Build as Release
