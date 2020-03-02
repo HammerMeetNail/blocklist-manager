@@ -15,7 +15,7 @@ FROM python:3.6.9-alpine as Test
 
 
 WORKDIR /app
-COPY --from=Build / /
+COPY --from=Release / /
 COPY test /app/test
 RUN pip install -r test/requirements.txt
 
